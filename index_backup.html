@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.header {
+  border: 1px solid blue;
+  padding: 10px;
+  font-size: larger
+}
+
+.main {
+  width: 40%;
+  float: left;
+  padding: 15px;
+  border: 0px solid blue;
+}
+.team1scoreboard {
+  width: 30%;
+  float: left;
+  padding: 15px;
+  border: 0px solid blue;
+}
+
+.team2scoreboard {
+  width: 30%;
+  float: right;
+  padding: 15px;
+  border: 0px solid blue;
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="header">
+    <p>Great day for Cricket</p>
+
+
+    <button onclick="setMatch()">Match Setting</button>
+    <button onclick="startGame()">Start Game</button>
+</div>
+
+<div class="team1scoreboard">
+  <ul>
+    <p id="team1Name"></p>
+    <p id="team1PlayStatus"></p>
+    <p id="team1NumOfOuts"></p>
+    <p id="team1Score"></p>
+    <p id="team1BallsLeft"></p>
+    <button id=team1BatButton onclick="bat()">Bat</button>
+</div>
+
+<div class="main">
+    <p id="matchTV"></p>
+    <p id="matchsetting"></p>
+    <p id="startgame" style="color:red"></p>
+    <p id="matchResult" style="color:red"></p>
+    <p id="centuryCounter"></p>
+    <p id="halfCenturyCounter"></p>
+    <p id="team1SixesFours"></p>
+    <p id="team2SixesFours"></p>    
+</div>
+
+<div class="team2scoreboard">
+    <p id="team2Name"></p>
+    <p id="team2PlayStatus"></p>
+    <p id="team2NumOfOuts"></p>
+    <p id="team2Score"></p>
+    <p id="team2BallsLeft"></p>
+    <button id=team2BatButton onclick="bat()">Bat</button>
+</div>
+
+
+<script>
+    var centuryCounter=0;
+    var halfCenturyCounter=0;
+    var numberOfOvers = 20;
+    var gameStarted = false;
+    var battingStarted = false;
+    var battingTeam="Team 1";
+    var batButton=true;
+    var scoreBeforeOut=0;
+    //Team 1 variables
+    var team1Name = "Canada";
+    var team1ballsRemaining = 120;
+    var team1Outs=0;
+    var team1Score=0;
+    var team1PlayStatus="Good Mood";
+    var team1BattersRemaining = 10;
+    var team1Sixes = 0;
+    var team1Fours = 0;
+    // Team 2 variables
+    var team2Name="USA";
+    var team2ballsRemaining = 120;
+    var team2Outs = 0;
+    var team2Score=0;
+    var team2PlayStatus="Good Mood";
+    var team2BattersRemaining = 10;
+    var team2Sixes = 0;
+    var team2Fours = 0;
+    
+    document.getElementById("matchsetting").innerHTML = "Playing " + numberOfOvers + " Overs";
+    /*
+    Setup game board
+    */
+    document.getElementById("matchTV").innerHTML = "<img src='ready.gif' width='400' height='300'>";
+    //document.getElementById("1stSeperator").innerHTML = "-------------------";
+    document.getElementById("startgame").innerHTML = "Click Start Game if you are happy with the setting!";
+    document.getElementById("team1Name").innerHTML = "Team 1: " + team1Name;
+    document.getElementById("team1PlayStatus").innerHTML = "Status: " + team1PlayStatus;
+    document.getElementById("team1NumOfOuts").innerHTML = "Outs: " + team1Outs;
+    document.getElementById("team1BallsLeft").innerHTML = "Balls Remaining: " + team1ballsRemaining;
+    document.getElementById("team1Score").innerHTML = "Score: " + team1Score;
+    //document.getElementById("2ndSeperator").innerHTML = "-------------------";
+    document.getElementById("team2Name").innerHTML = "Team 2: " + team2Name;
+    document.getElementById("team2PlayStatus").innerHTML = "Status: " + team2PlayStatus;
+    document.getElementById("team2NumOfOuts").innerHTML = "Outs: " + team2Outs ;
+    document.getElementById("team2BallsLeft").innerHTML = "Balls Remaining: " + team2ballsRemaining;
+    document.getElementById("team2Score").innerHTML = "Score: " + team2Score;
+    document.getElementById("centuryCounter").innerHTML = "Century Counter: "+centuryCounter;
+    document.getElementById("halfCenturyCounter").innerHTML = "Half Century Counter: "+halfCenturyCounter;
+    document.getElementById("team1SixesFours").innerHTML = "Team 1: 4's:("+team1Fours+") , Sixes:("+team1Sixes+")";
+    document.getElementById("team2SixesFours").innerHTML = "Team 2: 4's:("+team2Fours+") , Sixes:("+team2Sixes+")";
+    
+    
+    function setMatch() {
+        if (gameStarted != true){
+        numberOfOvers = prompt("How many Overs do you want to play", numberOfOvers);
+        team1Name = prompt("Team 1: ", team1Name);
+        document.getElementById("team1Name").innerHTML = "Team 1: " + team1Name;
+        team2Name = prompt("Team 2: ", team2Name);
+        document.getElementById("team2Name").innerHTML = "Team 2: " + team2Name;
+        team1ballsRemaining = 6*numberOfOvers;
+        team2ballsRemaining = 6*numberOfOvers;
+        document.getElementById("team1BallsLeft").innerHTML = "Balls Remaining: " + team1ballsRemaining;
+        document.getElementById("team2BallsLeft").innerHTML = "Balls Remaining: " + team2ballsRemaining;
+        }  
+        if (numberOfOvers != null) {
+        document.getElementById("matchsetting").innerHTML = "Playing " + numberOfOvers + " Overs";
+      }
+    }
+    function startGame() {
+                if (gameStarted != true){
+                    gameStarted=true;
+                    document.getElementById("startgame").innerHTML = "Game Started! Good luck to both Teams";
+                    document.getElementById("team2BatButton").disabled = true;
+                    document.getElementById("team1BatButton").disabled = false; 
+                }
+                else window.alert("Game has already started");
+    }
+    
+    function bat() {
+    if (gameStarted==true){ 
+
+    /*if (team1ballsRemaining==0 && battingTeam=="Team 1"){
+        battingTeam="Team 2";
+        scoreBeforeOut=0;
+        centuryCounter=0;
+        halfCenturyCounter=0;
+        document.getElementById("team2BatButton").disabled = false;
+        document.getElementById("team1BatButton").disabled = true; 
+    }
+    if (team1BattersRemaining==0 && battingTeam=="Team 1"){
+        battingTeam="Team 2";
+        scoreBeforeOut=0;
+        centuryCounter=0;
+        halfCenturyCounter=0;
+        document.getElementById("team2BatButton").disabled = false;
+        document.getElementById("team1BatButton").disabled = true; 
+    
+    }
+    if (team2ballsRemaining==0){
+        batButton=false;
+        battingTeam="Game Over";
+        document.getElementById("startgame").innerHTML = "Game Over!";
+        if (team1Score > team2Score){
+            document.getElementById("matchResult").innerHTML = "!!!! Team 1 Wins !!!!";
+        }
+        if (team2Score > team1Score){
+            document.getElementById("matchResult").innerHTML = "!!!! Team 2 Wins !!!!";
+        }
+        if (team1Score==team2Score){
+            document.getElementById("matchResult").innerHTML = "!!!!  Match Draw !!!!";
+        }
+    }
+    if (team2BattersRemaining==0){
+        batButton=false;
+        battingTeam="Game Over";
+        document.getElementById("startgame").innerHTML = "Game Over!";
+        if (team1Score > team2Score){
+            document.getElementById("matchResult").innerHTML = "!!!! Team 1 Wins !!!!";
+        }
+        if (team2Score > team1Score){
+            document.getElementById("matchResult").innerHTML = "!!!! Team 2 Wins !!!!";
+        }
+        if (team1Score==team2Score){
+            document.getElementById("matchResult").innerHTML = "!!!!  Match Draw !!!!";
+        }
+    } */
+    if (batButton==true){    
+    battingStarted=true;
+    var battingResult=Math.floor((Math.random() * 9) + 0);
+    if (battingTeam=="Team 1"){
+        team1PlayStatus="Batting";
+        team2PlayStatus="Fielding";
+        team1ballsRemaining=team1ballsRemaining-1;
+    switch (battingResult) {
+      case 0:
+            centuryCounter=0;
+            halfCenturyCounter=0;
+            document.getElementById("startgame").innerHTML = "Out!!";
+            if (scoreBeforeOut==team1Score){
+            document.getElementById("matchTV").innerHTML = "<img src='duck.gif' width='400' height='300'>";
+            }
+            if (scoreBeforeOut<team1Score){
+            document.getElementById("matchTV").innerHTML = "<img src='bowled-out.gif' width='400' height='300'>";
+            scoreBeforeOut=team1Score;
+            }
+            team1Outs=team1Outs+1;
+            team1BattersRemaining=team1BattersRemaining-1;
+            /*if (team1BattersRemaining==0){
+                battingTeam="Team 2";
+            }*/
+            milestoneCheck(0);
+           
+        break;
+      case 1:
+            document.getElementById("startgame").innerHTML = "1 Run";
+            team1Score=team1Score+1;
+            document.getElementById("matchTV").innerHTML = "<img src='run.gif' width='400' height='300'>";
+            milestoneCheck(1);
+            
+        break;
+      case 2:
+      document.getElementById("startgame").innerHTML = "2 Runs";
+      team1Score=team1Score+2;
+      document.getElementById("matchTV").innerHTML = "<img src='run.gif' width='400' height='300'>";
+      milestoneCheck(2);
+     
+        break;
+      case 3:
+      document.getElementById("startgame").innerHTML = "3 Runs - Good Running";
+      team1Score=team1Score+3;
+      document.getElementById("matchTV").innerHTML = "<img src='run.gif' width='400' height='300'>";
+      milestoneCheck(3);
+      
+        break;
+      case 4:
+      team1Fours=team1Fours+1;
+      document.getElementById("startgame").innerHTML = "4 Runs!!!";
+      team1Score=team1Score+4;
+      document.getElementById("matchTV").innerHTML = "<img src='four.gif' width='400' height='300'>";
+      milestoneCheck(4);
+      
+        break;
+      case 5:
+      centuryCounter=0;
+        halfCenturyCounter=0;
+      document.getElementById("startgame").innerHTML = "Caught!!!";
+      if (scoreBeforeOut==team1Score){
+            document.getElementById("matchTV").innerHTML = "<img src='duck.gif' width='400' height='300'>";
+            }
+            if (scoreBeforeOut<team1Score){
+            document.getElementById("matchTV").innerHTML = "<img src='caught.gif' width='400' height='300'>";
+            scoreBeforeOut=team1Score;
+            }
+        team1Outs=team1Outs+1;
+        team1BattersRemaining=team1BattersRemaining-1;
+        /*if (team1BattersRemaining==0){
+                battingTeam="Team 2";
+    
+            }*/
+            milestoneCheck(0);
+      
+        break;
+      case 6:
+      team1Sixes=team1Sixes+1;
+      document.getElementById("startgame").innerHTML = "!!! Six Runs !!!";
+      document.getElementById("matchTV").innerHTML = "<img src='six.gif' width='400' height='300'>";
+      team1Score=team1Score+6;
+      milestoneCheck(6);
+  
+        break;
+      case 7:
+      document.getElementById("startgame").innerHTML = "Wide";
+      document.getElementById("matchTV").innerHTML = "<img src='wide.png' width='400' height='300'>";
+      team1ballsRemaining=team1ballsRemaining+1;
+      team1Score=team1Score+1;
+      milestoneCheck(0);
+
+        break;
+      case 8:
+      team1Fours=team1Fours+1;
+      document.getElementById("startgame").innerHTML = "4 Runs!!!";
+      team1Score=team1Score+4;
+      document.getElementById("matchTV").innerHTML = "<img src='four.gif' width='400' height='300'>";
+      milestoneCheck(4);
+ 
+        break;
+      case 9:
+      document.getElementById("startgame").innerHTML = "No Run";
+      document.getElementById("matchTV").innerHTML = "<img src='no_run.gif' width='400' height='300'>";
+      milestoneCheck(0);
+
+        break;
+    }
+    }
+    if (battingTeam=="Team 2"){
+        team2PlayStatus="Batting";
+        team1PlayStatus="Fielding";
+        team2ballsRemaining=team2ballsRemaining-1;
+    switch (battingResult) {
+      case 0:
+      centuryCounter=0;
+            halfCenturyCounter=0;
+      document.getElementById("startgame").innerHTML = "Out!!";
+      if (scoreBeforeOut==team2Score){
+            document.getElementById("matchTV").innerHTML = "<img src='duck.gif' width='400' height='300'>";
+            }
+            if (scoreBeforeOut<team2Score){
+            document.getElementById("matchTV").innerHTML = "<img src='bowled-out.gif' width='400' height='300'>";
+            scoreBeforeOut=team2Score;
+            }
+            team2Outs=team2Outs+1;
+            team2BattersRemaining=team2BattersRemaining-1;
+            /*if (team2BattersRemaining==0){
+                battingTeam="Game Over";
+            }
+            milestoneCheck(0);*/
+
+        break;
+      case 1:
+            document.getElementById("startgame").innerHTML = "1 Run";
+            document.getElementById("matchTV").innerHTML = "<img src='run.gif' width='400' height='300'>";
+            team2Score=team2Score+1;
+            milestoneCheck(1);
+
+        break;
+      case 2:
+      document.getElementById("startgame").innerHTML = "2 Runs";
+      document.getElementById("matchTV").innerHTML = "<img src='run.gif' width='400' height='300'>";
+            team2Score=team2Score+2;
+            milestoneCheck(2);
+
+        break;
+      case 3:
+      document.getElementById("startgame").innerHTML = "3 Runs - Good Running";
+      document.getElementById("matchTV").innerHTML = "<img src='run.gif' width='400' height='300'>";
+            team2Score=team2Score+3;
+            milestoneCheck(3); 
+
+      break;
+      case 4:
+      team2Fours=team2Fours+1;
+      document.getElementById("startgame").innerHTML = "4 Runs!!!";
+      document.getElementById("matchTV").innerHTML = "<img src='four.gif' width='400' height='300'>";
+            team2Score=team2Score+4;
+            milestoneCheck(4); 
+
+      break;
+      case 5:
+      centuryCounter=0;
+            halfCenturyCounter=0;
+      document.getElementById("startgame").innerHTML = "Caught!!!";
+      if (scoreBeforeOut==team2Score){
+            document.getElementById("matchTV").innerHTML = "<img src='duck.gif' width='400' height='300'>";
+            }
+            if (scoreBeforeOut<team2Score){
+            document.getElementById("matchTV").innerHTML = "<img src='caught.gif' width='400' height='300'>";
+            scoreBeforeOut=team2Score;
+            }
+      team2Outs=team2Outs+1;
+        team2BattersRemaining=team2BattersRemaining-1;
+        milestoneCheck(0); 
+   
+      break;
+      case 6:
+      team2Sixes=team2Sixes+1;
+      document.getElementById("startgame").innerHTML = "!!! Six Runs !!!";
+      document.getElementById("matchTV").innerHTML = "<img src='six.gif' width='400' height='300'>";
+        team2Score=team2Score+6;
+        milestoneCheck(6);
+
+        break;
+      case 7:
+      document.getElementById("startgame").innerHTML = "Wide";
+      document.getElementById("matchTV").innerHTML = "<img src='wide.png' width='400' height='300'>";
+      team2ballsRemaining=team2ballsRemaining+1;
+      team2Score=team2Score+1;
+      milestoneCheck(0);
+
+        break;
+      case 8:
+      team2Fours=team2Fours+1;
+      document.getElementById("startgame").innerHTML = "4 Runs!!!";
+      document.getElementById("matchTV").innerHTML = "<img src='four.gif' width='400' height='300'>";
+            team2Score=team2Score+4;
+            milestoneCheck(4);
+  
+            break; 
+      case 9:
+      document.getElementById("startgame").innerHTML = "No Run";
+      document.getElementById("matchTV").innerHTML = "<img src='no_run.gif' width='400' height='300'>";
+      milestoneCheck(0);
+
+        break;
+    }
+    
+    }
+    }
+    
+    //document.getElementById("team1Score").innerHTML = "Score: " + team1Score;
+    //team1Score=team1Score+1;
+    checkGameState()
+    setScoreboard();
+    
+
+    }
+    }
+
+    function milestoneCheck(count){
+    halfCenturyCounter=halfCenturyCounter+count;
+    centuryCounter=centuryCounter+count;
+        if (halfCenturyCounter>=50){
+        document.getElementById("matchTV").innerHTML = "<img src='cheer.gif' width='400' height='300'>";
+        halfCenturyCounter=0;
+    }
+    if (centuryCounter>=100){
+        document.getElementById("matchTV").innerHTML = "<img src='cheer.gif' width='400' height='300'>";
+        centuryCounter=0;
+    }
+    document.getElementById("centuryCounter").innerHTML = "Century Counter: "+centuryCounter;
+    document.getElementById("halfCenturyCounter").innerHTML = "Half Century Counter: "+halfCenturyCounter;
+    }
+    
+    function setScoreboard(){
+    //document.getElementById("1stSeperator").innerHTML = "-------------------";
+    //document.getElementById("startgame").innerHTML = "Good Luck to both teams!";
+    document.getElementById("team1PlayStatus").innerHTML = "Status: " + team1PlayStatus;
+    document.getElementById("team1NumOfOuts").innerHTML = "Outs: " + team1Outs;
+    document.getElementById("team1BallsLeft").innerHTML = "Balls Remaining: " + team1ballsRemaining;
+    document.getElementById("team1Score").innerHTML = "Score: " + team1Score;
+    //document.getElementById("2ndSeperator").innerHTML = "-------------------";
+    document.getElementById("team2PlayStatus").innerHTML = "Status: " + team2PlayStatus;
+    document.getElementById("team2NumOfOuts").innerHTML = "Outs: " + team2Outs ;
+    document.getElementById("team2BallsLeft").innerHTML = "Balls Remaining: " + team2ballsRemaining;
+    document.getElementById("team2Score").innerHTML = "Score: " + team2Score;
+    document.getElementById("team1SixesFours").innerHTML = "Team 1: 4's:("+team1Fours+") , Sixes:("+team1Sixes+")";
+    document.getElementById("team2SixesFours").innerHTML = "Team 2: 4's:("+team2Fours+") , Sixes:("+team2Sixes+")";
+    }
+
+    function checkGameState(){
+    if (team1ballsRemaining==0 && battingTeam=="Team 1"){
+        battingTeam="Team 2";
+        scoreBeforeOut=0;
+        centuryCounter=0;
+        halfCenturyCounter=0;
+        document.getElementById("team2BatButton").disabled = false;
+        document.getElementById("team1BatButton").disabled = true; 
+    }
+    if (team1BattersRemaining==0 && battingTeam=="Team 1"){
+        battingTeam="Team 2";
+        scoreBeforeOut=0;
+        centuryCounter=0;
+        halfCenturyCounter=0;
+        document.getElementById("team2BatButton").disabled = false;
+        document.getElementById("team1BatButton").disabled = true; 
+    
+    }
+    if (team2ballsRemaining==0){
+        batButton=false;
+        battingTeam="Game Over";
+        document.getElementById("matchTV").innerHTML = "<img src='win.gif' width='400' height='300'>";
+        document.getElementById("startgame").innerHTML = "Game Over!";
+        document.getElementById("team2BatButton").disabled = true;
+        document.getElementById("team1BatButton").disabled = true;
+        if (team1Score > team2Score){
+            document.getElementById("matchResult").innerHTML = "!!!! Team 1 Wins !!!!";
+        }
+        if (team2Score > team1Score){
+            document.getElementById("matchResult").innerHTML = "!!!! Team 2 Wins !!!!";
+        }
+        if (team1Score==team2Score){
+            document.getElementById("matchResult").innerHTML = "!!!!  Match Draw !!!!";
+        }
+    }
+    if (team2BattersRemaining==0){
+        batButton=false;
+        battingTeam="Game Over";
+        document.getElementById("matchTV").innerHTML = "<img src='win.gif' width='400' height='300'>";
+        document.getElementById("startgame").innerHTML = "Game Over!";
+        document.getElementById("team2BatButton").disabled = true;
+        document.getElementById("team1BatButton").disabled = true;
+        if (team1Score > team2Score){
+            document.getElementById("matchResult").innerHTML = "!!!! Team 1 Wins !!!!";
+        }
+        if (team2Score > team1Score){
+            document.getElementById("matchResult").innerHTML = "!!!! Team 2 Wins !!!!";
+        }
+        if (team1Score==team2Score){
+            document.getElementById("matchResult").innerHTML = "!!!!  Match Draw !!!!";
+        }
+    }
+    if (team2Score>team1Score){
+        batButton=false;
+        battingTeam="Game Over";
+        document.getElementById("matchTV").innerHTML = "<img src='win.gif' width='400' height='300'>";
+        document.getElementById("startgame").innerHTML = "Game Over!";
+        document.getElementById("matchResult").innerHTML = "!!!! Team 2 Wins !!!!";
+        document.getElementById("team2BatButton").disabled = true;
+        document.getElementById("team1BatButton").disabled = true;
+        }
+    }
+    </script>
+</body>
+</html>
